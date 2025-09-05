@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const VoiceNote = dynamic(() => import('../../components/VoiceNote'), { ssr: false });
+const ScreenshotUpload = dynamic(() => import('../../components/ScreenshotUpload'), { ssr: false });
 
 export default function DailyTradePage() {
   const { date } = useParams();
@@ -27,6 +31,8 @@ export default function DailyTradePage() {
     pnl: 0,
     notes: '',
     emotions: { pre: '', during: '', post: '' },
+    voiceNote: null,
+    screenshots: [],
     tags: [],
     timezone: tz
   });
@@ -64,6 +70,7 @@ export default function DailyTradePage() {
       ...prev,
       { ...currentTrade, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
     ]);
+    // Reset form
     setCurrentTrade({
       symbol: '',
       side: 'long',
@@ -76,6 +83,8 @@ export default function DailyTradePage() {
       pnl: 0,
       notes: '',
       emotions: { pre: '', during: '', post: '' },
+      voiceNote: null,
+      screenshots: [],
       tags: [],
       timezone: tz
     });
@@ -183,9 +192,29 @@ export default function DailyTradePage() {
             </div>
           </div>
 
-          <div className="mt-4 flex gap-2">
-            <button onClick={calcPnL} className="px-4 py-2 bg-gray-700 text-white rounded">Calc P&L</button>
-            <button onClick={saveTrade} className="px-4 py-2 bg-blue-600 text-white rounded">Save Trade</button>
+          {/* Voice Note Section */}
+          <div className="border-t pt-4 mt-4">
+            <label className="block text-sm font-medium mb-2">Voice Note (record your thoughts)</label>
+            <VoiceNote onSave={(blob, url) => {
+              setCurrentTrade(t => ({ ...t, voiceNote: url }));
+            }} />
+          </div>
+
+          {/* Screenshot Section */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium mb-2">Chart Screenshots</label>
+            <ScreenshotUpload onUpload={(images) => {
+              setCurrentTrade(t => ({ ...t, screenshots: images }));
+            }} />
+          </div>
+
+          <div className="mt-6 flex gap-2">
+            <button onClick={calcPnL} className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">
+              Calculate P&L
+            </button>
+            <button onClick={saveTrade} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Save Trade
+            </button>
           </div>
         </div>
 
@@ -194,7 +223,7 @@ export default function DailyTradePage() {
           <h3 className="text-lg font-semibold mb-4">Trades on {date}</h3>
           {trades.length === 0 && <div className="text-gray-500">No trades yet.</div>}
           {trades.map(t => (
-            <div key={t.id} className="border-b py-2">
+            <div key={t.id} className="border-b py-3">
               <div className="flex justify-between">
                 <div className="font-medium">{t.symbol} — {t.side.toUpperCase()}</div>
                 <div className={`${t.pnl>=0?'text-green-600':'text-red-600'} font-bold`}>${Number(t.pnl).toFixed(2)}</div>
@@ -202,15 +231,33 @@ export default function DailyTradePage() {
               <div className="text-xs text-gray-500">
                 Qty {t.quantity} • {t.entryPrice} → {t.exitPrice}
               </div>
-              {t.notes && <div className="text-sm mt-1">{t.notes}</div>}
+              {t.notes && <div className="text-sm mt-1 text-gray-700">{t.notes}</div>}
               {(t.emotions.pre || t.emotions.during || t.emotions.post) && (
                 <div className="text-xs text-gray-600 mt-1">
                   Emotions: {t.emotions.pre} → {t.emotions.during} → {t.emotions.post}
                 </div>
               )}
+              {t.voiceNote && (
+                <div className="mt-2">
+                  <audio controls src={t.voiceNote} className="w-full h-8" />
+                </div>
+              )}
+              {t.screenshots && t.screenshots.length > 0 && (
+                <div className="flex gap-1 mt-2">
+                  {t.screenshots.map((img, idx) => (
+                    <img key={idx} src={img.url} className="h-16 w-16 object-cover rounded" />
+                  ))}
+                </div>
+              )}
             </div>
           ))}
-          <div className="mt-4 font-bold">Total P&L: ${totalPnl.toFixed(2)}</div>
+          <div className="mt-4 pt-4 border-t">
+            <div className="text-xl font-bold">
+              Day Total: <span className={totalPnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                ${totalPnl.toFixed(2)}
+              </span>
+            </div>
+          </div>
         </div>
       </main>
     </div>
