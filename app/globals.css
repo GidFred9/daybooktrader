@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #0B0F14;
+    --surface-primary: #0F172A;
+    --surface-secondary: #111827;
+    --border: #1F2937;
+    --text-primary: #E5E7EB;
+    --text-muted: #9CA3AF;
+    --positive: #10B981;
+    --negative: #EF4444;
+    --accent: #60A5FA;
+  }
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-feature-settings: "tnum";
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
