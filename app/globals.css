@@ -2,23 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --bg-primary: #0B0F14;
-    --surface-primary: #0F172A;
-    --surface-secondary: #111827;
-    --border: #1F2937;
-    --text-primary: #E5E7EB;
-    --text-muted: #9CA3AF;
-    --positive: #10B981;
-    --negative: #EF4444;
-    --accent: #60A5FA;
-  }
+/* Page background + aurora layer */
+:root { color-scheme: dark; }
+html, body { height: 100%; }
+body {
+  @apply bg-ink text-text antialiased;
+  background-image:
+    radial-gradient(1200px 800px at 20% -10%, rgba(40,92,246,.15), transparent 60%),
+    radial-gradient(1000px 700px at 80% 10%, rgba(244,114,182,.12), transparent 60%),
+    radial-gradient(1000px 700px at 50% 110%, rgba(34,213,238,.1), transparent 60%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-feature-settings: "tnum";
-  background: var(--bg-primary);
-  color: var(--text-primary);
+/* Glass panels */
+.glass {
+  @apply bg-panel/70 backdrop-blur-xl border border-line/60 shadow-glass rounded-2xl;
+}
+
+/* Neon bits */
+.neon-ring  { box-shadow: 0 0 0 1px rgba(34,213,238,.35), inset 0 0 0 1px rgba(34,213,238,.2); }
+.neon-text  { text-shadow: 0 0 24px rgba(34,213,238,.55); }
+.neon-glow  { box-shadow: 0 0 0 1px rgba(244,114,182,.25), 0 10px 40px rgba(244,114,182,.25); }
+
+/* Tabular numbers for financials */
+.tabnums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Subtle grid (optional) */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
